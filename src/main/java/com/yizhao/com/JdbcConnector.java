@@ -9,62 +9,16 @@ import java.sql.Statement;
  * Created by yzhao on 5/24/17.
  */
 public class JdbcConnector {
-    private static final String NETEZZA_DB_DRIVER = "com.mysql.jdbc.Driver";
+    private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
     private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/marketplace";
     private static final String DB_USER = "om";
     private static final String DB_PASSWORD = "N3wQA3ra.";
-
-    public static void dataToCsv(String table, String csvFileOutputPath, String partition) throws SQLException {
-        Connection dbConnection = null;
-        Statement statement = null;
-
-        String selectTableSQL = null;
-
-        if (partition == null) {
-            selectTableSQL = "create external table \'" + csvFileOutputPath + "\'" +
-                    "\n" +
-                    "using (delim '|' escapechar '\\' remoteSource 'JDBC')" +
-                    "\n" +
-                    "as select * from " + table;
-        } else {
-            selectTableSQL = "create external table \'" + csvFileOutputPath + "\'" +
-                    "\n" +
-                    "using (delim '|' escapechar '\\' remoteSource 'JDBC')" +
-                    "\n" +
-                    "as select * from " + table +
-                    "\n" +
-                    "WHERE MOD(" + table + ".EVENT_ID, 10)=" + partition +
-                    "\n" +
-                    "ORDER BY " + table + ".EVENT_ID";
-        }
-
-        try {
-            dbConnection = getDBConnection();
-            statement = dbConnection.createStatement();
-
-            System.out.println("execute query: \n" + selectTableSQL);
-
-            // execute select SQL stetement
-            statement.execute(selectTableSQL);
-        } catch (SQLException e) {
-            System.out.println("Exception in dataToCsv:" + e.getMessage());
-
-        } finally {
-            if (statement != null) {
-                statement.close();
-            }
-
-            if (dbConnection != null) {
-                dbConnection.close();
-            }
-        }
-    }
 
     public static Connection getDBConnection() {
         Connection dbConnection = null;
 
         try {
-            Class.forName(NETEZZA_DB_DRIVER);
+            Class.forName(DB_DRIVER);
         } catch (ClassNotFoundException e) {
             System.out.println("Exception in getDBConnection:" + e.getMessage());
         }
@@ -84,7 +38,7 @@ public class JdbcConnector {
 
     public static void connectionTesting() {
         try {
-            Class.forName(NETEZZA_DB_DRIVER);
+            Class.forName(DB_DRIVER);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return;
